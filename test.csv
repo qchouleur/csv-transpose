@@ -1,0 +1,7 @@
+Timestamp (UTC),Processing Id,Chiller Meter 1,Chiller Meter 2
+1/29/20 17:58,IQGA,180,
+1/29/20 17:59,IQGA,60,
+1/29/20 18:00,IQGA,0,
+1/29/20 17:58,IQGA,,60
+1/29/20 17:59,IQGA,,0
+1/29/20 18:00,IQGA,,60

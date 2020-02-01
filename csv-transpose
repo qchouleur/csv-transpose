@@ -1,0 +1,73 @@
+#!/usr/bin/env python
+
+import argparse
+import sys
+import os
+from collections import namedtuple
+
+parser = argparse.ArgumentParser(description='Transpose the specified columns.')
+parser.add_argument(
+  '-s',
+  '--source',
+   nargs='?',
+   dest='source',
+   help='The path of the CSV file',
+   type=argparse.FileType('r'),
+   default=sys.stdin)
+parser.add_argument(
+  '-d',
+  '--destination',
+  nargs='?',
+  required=False,
+  dest='destination',
+  help='The path of the CSV result',
+  type=argparse.FileType('w'),
+  default=sys.stdout)
+parser.add_argument(
+  '-c',
+  '--constants',
+  nargs='+',
+  type=int,
+  dest='constants',
+  help='The indexes of the colums that should not be transposed')
+parser.add_argument(
+  '--title-column',
+  nargs='?',
+  dest='nameColumnTitle',
+  help='The title of the name colum',
+  default='name')
+parser.add_argument(
+  '--value-column',
+  nargs='?',
+  dest='valueColumnTitle',
+  help='The title of the value column',
+  default='value')
+
+args = parser.parse_args()
+
+SEPARATOR = ','
+
+# create the new header
+constant_indexes = set(args.constants)
+source_header = args.source.readline().rstrip()
+source_columns = source_header.split(SEPARATOR)
+transposed_indexes = set(range(len(source_columns))) - constant_indexes
+
+constant_columns = [source_columns[i] for i in constant_indexes]
+output_columns = constant_columns + [args.nameColumnTitle, args.valueColumnTitle]
+
+args.destination.write(SEPARATOR.join(output_columns) + os.linesep)
+
+TitledValue = namedtuple('TitledValue', 'title value')
+
+# get the header
+for line in args.source:
+  # get the values at the not ignored index, create a new row for each of them
+  values = line.rstrip().split(SEPARATOR)
+  constant_values = [values[i] for i in constant_indexes]
+  transposed_values = [TitledValue(source_columns[i], values[i]) for i in transposed_indexes if values[i]]
+  
+  for transposed_value in transposed_values:
+    args.destination.write(SEPARATOR.join(constant_values + [transposed_value.title, transposed_value.value]) + os.linesep)
+
+
